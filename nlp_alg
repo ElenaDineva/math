@@ -1,0 +1,47 @@
+def conditional(text):
+    priors = {}
+    probabilities = {}
+    words = {}
+    for line in text:
+        line = line.split()
+        option = line[0]
+        if option in words:
+            words[option]  += len(line) - 1
+        else:
+            words[option] = len(line) - 1
+        if option in priors:
+            priors[option] += 1
+        else:
+            priors[option] = 1
+        if option not in probabilities:
+            probabilities[option] = {}
+            
+        # calculate each of the words’ probabilities, starting from the second word
+        for i in range(1, len(line)):
+            if line[i]  in probabilities[option]:
+                # checking if this word is already in the probabilities
+                probabilities[option][line[i]] += 1
+            else:
+                probabilities[option][line[i]] = 1
+                return priors, probabilities, words
+
+def classify(text, priors, probabilities, words):
+    accent_options = {}
+    text = text.split()
+    for accent_option in priors:
+        probability = priors[accent_option]
+        for word in text:
+            word.lower()
+            # for a word an option has in their probabilities
+            if word in probabilities[accent_option]:
+                probability *= (1. + probabilities[accent_option][word]) / words[accent_option]
+            else:
+                # if a new word
+                probability *= 1. / words[accent_option]
+        print(accent_option, probability)
+
+
+text = ['British by contrast you can do anything in a pair of sensible trainers shoes that are unremarkable but functional not exactly pretty but an inversion of ugly trainers', 'American cannot help but think that the young mens sneakers are what the elaborate handbags were to women this century when the all important handbag was the statement and sneakers have made just as big an impact on fashion']
+
+priors, probabilities, words = conditional(text)
+classify('sneakers will be the new trendsetter', priors, probabilities, words)
